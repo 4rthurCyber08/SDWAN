@@ -1,0 +1,16 @@
+Add Images to EVE-ng
+
+Add Router and Switch: vIOS
+Reference: https://www.eve-ng.net/index.php/documentation/howtos/howto-add-cisco-vios-from-virl/
+
+	vIOS- goes to qemu folder
+
+
+Add SDWAN Appliances: vControllers & vEdges
+Reference: https://www.eve-ng.net/index.php/documentation/howtos/howto-add-cisco-viptela-images-set/
+
+
+*************
+Fix Permission
+
+/opt/unetlab/wrappers/unl_wrapper -a fixpermissions

@@ -1,0 +1,30 @@
+VM SETTINGS
+Provide 4 Processors and 2 cores per
+
+*************
+BOOT SETUP
+
+eve-ng (default) login: root
+eve-ng (default) password: eve
+
+	New Password
+	Root Password: C1sc0123
+	Hostname: rivanlabs-eve-ng
+
+
+*************
+WEB GUI
+
+	Default Admin Account
+	Username: admin
+	Password: eve 
+
+Create additional Admin Account
+	Management > User Management > Add User
+		Username: rivan
+		Password: C1sc0123
+		Email: rivanlabs@localhost.com
+		Name: Rivan-Administration
+		Role: admin
+		POD: Leave as default (will increment per user created)
+	

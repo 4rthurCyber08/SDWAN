@@ -1,0 +1,516 @@
+DATA CENTER:
+
+@vSmart
+system
+ host-name             Rivan-vSmart
+ system-ip             100.0.0.104
+ site-id               728
+ admin-tech-on-failure
+ organization-name     rivan-sdwan
+ upgrade-confirm       15
+ vbond 100.0.0.103
+ aaa
+  auth-order local radius tacacs
+  usergroup basic
+   task system read write
+   task interface read write
+  !
+  usergroup netadmin
+  !
+  usergroup operator
+   task system read
+   task interface read
+   task policy read
+   task routing read
+   task security read
+  !
+  user admin
+   password $6$mES5RORPoB1wHVHM$1zfByRwH9KQly/IRq1UDjte.acPXEuRHHti5dmSsw6BZn.t1tyd7uYrSGKRaaCBFhRKzJuGGU51oy1LZUWi69.
+  !
+ !
+ logging
+  disk
+   enable
+  !
+ !
+!
+omp
+ no shutdown
+ graceful-restart
+!
+vpn 0
+ interface eth0
+  ip address 100.0.0.105/24
+  tunnel-interface
+   allow-service dhcp
+   allow-service dns
+   allow-service icmp
+   no allow-service sshd
+   no allow-service netconf
+   no allow-service ntp
+   no allow-service stun
+  !
+  no shutdown
+ !
+ ip route 0.0.0.0/0 100.0.0.254
+!
+vpn 512
+!
+
+
+@vMGMT
+system
+ host-name             Rivan-vManage
+ system-ip             100.0.0.100
+ site-id               728
+ admin-tech-on-failure
+ organization-name     rivan-sdwan
+ vbond 100.0.0.103
+ aaa
+  auth-order local radius tacacs
+  usergroup basic
+   task system read write
+   task interface read write
+  !
+  usergroup netadmin
+  !
+  usergroup operator
+   task system read
+   task interface read
+   task policy read
+   task routing read
+   task security read
+  !
+  user admin
+   password $6$Q6X/I6cUrkVIc4nI$8Dyhfd5vnbqrkMwkzXqGkGdde0.nR7A0BnQgGSGbrvRm5Zf8Qs/hG8LVt3spt6in26hJaoj5V7BM.bxFPVNkA1
+  !
+ !
+ logging
+  disk
+   enable
+  !
+ !
+!
+vpn 0
+ interface eth0
+  ip address 100.0.0.101/24
+  tunnel-interface
+   allow-service dhcp
+   allow-service dns
+   allow-service icmp
+   no allow-service sshd
+   no allow-service netconf
+   no allow-service ntp
+   no allow-service stun
+   allow-service https
+  !
+  no shutdown
+ !
+ ip route 0.0.0.0/0 100.0.0.254
+!
+vpn 512
+!
+
+
+@vBond
+system
+ host-name               Rivan-vBond
+ system-ip               100.0.0.102
+ site-id                 728
+ admin-tech-on-failure
+ no route-consistency-check
+ organization-name       rivan-sdwan
+ upgrade-confirm         15
+ vbond 100.0.0.103 local vbond-only
+ aaa
+  auth-order local radius tacacs
+  usergroup basic
+   task system read write
+   task interface read write
+  !
+  usergroup netadmin
+  !
+  usergroup operator
+   task system read
+   task interface read
+   task policy read
+   task routing read
+   task security read
+  !
+  user admin
+   password $6$UqEh8EAykPlrQY/9$GNo1Sa0xmucPhuEqLJ1T2u.A/NwbxPLL38DV0lBoDGCxG/X2Gk/k2almnjdbPBnus4FjIx.NoeeJUexDWc1.n.
+  !
+ !
+ logging
+  disk
+   enable
+  !
+ !
+!
+omp
+ no shutdown
+ graceful-restart
+ advertise connected
+ advertise static
+!
+security
+ ipsec
+  authentication-type ah-sha1-hmac sha1-hmac
+ !
+!
+vpn 0
+ interface ge0/0
+  ip address 100.0.0.103/24
+  tunnel-interface
+   encapsulation ipsec
+   no allow-service bgp
+   allow-service dhcp
+   allow-service dns
+   allow-service icmp
+   no allow-service sshd
+   no allow-service netconf
+   no allow-service ntp
+   no allow-service ospf
+   no allow-service stun
+  !
+  no shutdown
+ !
+!
+vpn 512
+ interface eth0
+  ip dhcp-client
+  no shutdown
+ !
+!
+
+
+
+SITE 1: LUZON
+
+@vEdge1
+system
+ host-name               Rivan-vEdge1
+ gps-location latitude 43.0
+ gps-location longitude 43.0
+ system-ip               100.0.0.106
+ site-id                 5
+ admin-tech-on-failure
+ no route-consistency-check
+ sp-organization-name    rivan-sdwan
+ organization-name       rivan-sdwan
+ vbond 100.0.0.103
+ aaa
+  auth-order local radius tacacs
+  usergroup basic
+   task system read write
+   task interface read write
+  !
+  usergroup netadmin
+  !
+  usergroup operator
+   task system read
+   task interface read
+   task policy read
+   task routing read
+   task security read
+  !
+  user admin
+   password $6$le5h91sk/WmjRt5W$qj99AqWWegLnEWJGsMBMjAOv6a/n9EvzpCKS8/gAZlmWpKiEsLtJTkY99Q4KcYckSp5plY6x24ZAzfsr016H40
+  !
+ !
+ logging
+  disk
+   enable
+  !
+ !
+!
+omp
+ no shutdown
+ graceful-restart
+ advertise connected
+ advertise static
+!
+security
+ ipsec
+  authentication-type sha1-hmac ah-sha1-hmac
+ !
+!
+vpn 0
+ name "Transport VPN"
+ router
+  ospf
+   timers spf 200 1000 10000
+   area 0
+    stub no-summary
+    interface ge0/2
+    exit
+    range 10.0.10.0/24
+    range 100.0.0.0/24
+   exit
+  !
+ !
+ interface ge0/0
+  ip address 100.0.0.107/24
+  tunnel-interface
+   encapsulation ipsec
+   color private1 restrict
+   no allow-service bgp
+   allow-service dhcp
+   allow-service dns
+   allow-service icmp
+   no allow-service sshd
+   no allow-service netconf
+   no allow-service ntp
+   allow-service ospf
+   no allow-service stun
+  !
+  no shutdown
+ !
+ interface ge0/2
+  description ForVlan
+  ip address 10.0.10.1/24
+  tunnel-interface
+   encapsulation ipsec
+   no allow-service bgp
+   allow-service dhcp
+   allow-service dns
+   allow-service icmp
+   no allow-service sshd
+   no allow-service netconf
+   no allow-service ntp
+   allow-service ospf
+   no allow-service stun
+  !
+  no shutdown
+ !
+!
+vpn 512
+ name "Management VPN"
+ interface eth0
+  description eth0
+  ip dhcp-client
+  no shutdown
+ !
+!
+
+
+**********
+
+SITE2 : VISAYAS
+
+@vEDGE2
+system
+ host-name               Rivan-vEdge2
+ gps-location latitude 45.0
+ gps-location longitude 45.0
+ system-ip               100.0.0.108
+ site-id                 6
+ admin-tech-on-failure
+ no route-consistency-check
+ sp-organization-name    rivan-sdwan
+ organization-name       rivan-sdwan
+ vbond 100.0.0.103
+ aaa
+  auth-order local radius tacacs
+  usergroup basic
+   task system read write
+   task interface read write
+  !
+  usergroup netadmin
+  !
+  usergroup operator
+   task system read
+   task interface read
+   task policy read
+   task routing read
+   task security read
+  !
+  user admin
+   password $6$ig9BBl7.fiM1lIE7$rJHiXODeePhf3cHRujbDDvU/F7qSojoWQ0mDkhaP7z8.WUaMiByMkGOoeIXz/6kblityEbfQvZKU894PW18L2.
+  !
+ !
+ logging
+  disk
+   enable
+  !
+ !
+!
+omp
+ no shutdown
+ graceful-restart
+ advertise connected
+ advertise static
+!
+security
+ ipsec
+  authentication-type sha1-hmac ah-sha1-hmac
+ !
+!
+vpn 0
+ name "Transport VPN"
+ router
+  ospf
+   timers spf 200 1000 10000
+   area 0
+    stub no-summary
+    interface ge0/2
+    exit
+    range 10.0.20.0/24
+    range 100.0.0.0/24
+   exit
+  !
+ !
+ interface ge0/0
+  ip address 100.0.0.109/24
+  tunnel-interface
+   encapsulation ipsec
+   color private1 restrict
+   no allow-service bgp
+   allow-service dhcp
+   allow-service dns
+   allow-service icmp
+   no allow-service sshd
+   no allow-service netconf
+   no allow-service ntp
+   allow-service ospf
+   no allow-service stun
+  !
+  no shutdown
+ !
+ interface ge0/2
+  description ForVlan
+  ip address 10.0.20.1/24
+  tunnel-interface
+   encapsulation ipsec
+   no allow-service bgp
+   allow-service dhcp
+   allow-service dns
+   allow-service icmp
+   no allow-service sshd
+   no allow-service netconf
+   no allow-service ntp
+   allow-service ospf
+   no allow-service stun
+  !
+  no shutdown
+ !
+!
+vpn 512
+ name "Management VPN"
+ interface eth0
+  description eth0
+  ip dhcp-client
+  no shutdown
+ !
+!
+
+
+**********
+
+SITE3: MINDANAO
+
+@vEDGE3
+system
+ host-name               Rivan-vEdge3
+ gps-location latitude 41.0
+ gps-location longitude 41.0
+ system-ip               100.0.0.123
+ site-id                 7
+ admin-tech-on-failure
+ no route-consistency-check
+ sp-organization-name    rivan-sdwan
+ organization-name       rivan-sdwan
+ vbond 100.0.0.103
+ aaa
+  auth-order local radius tacacs
+  usergroup basic
+   task system read write
+   task interface read write
+  !
+  usergroup netadmin
+  !
+  usergroup operator
+   task system read
+   task interface read
+   task policy read
+   task routing read
+   task security read
+  !
+  user admin
+   password $6$QLk47/MDT71fFv5s$1e6Glg6enfOIneKZ/CY9ISj6jI.jh/cvQ0ZYU5EZpiUeDjh2ezla4OkJr9CA9RwJVJmd1TgqYfKx8l4pam3r9/
+  !
+ !
+ logging
+  disk
+   enable
+  !
+ !
+!
+omp
+ no shutdown
+ graceful-restart
+ advertise connected
+ advertise static
+!
+security
+ ipsec
+  authentication-type sha1-hmac ah-sha1-hmac
+ !
+!
+vpn 0
+ name "Transport VPN"
+ router
+  ospf
+   timers spf 200 1000 10000
+   area 0
+    stub no-summary
+    interface ge0/2
+    exit
+    range 10.0.30.0/24
+    range 100.0.0.0/24
+   exit
+  !
+ !
+ interface ge0/0
+  ip address 100.0.0.111/24
+  tunnel-interface
+   encapsulation ipsec
+   color private1 restrict
+   no allow-service bgp
+   allow-service dhcp
+   allow-service dns
+   allow-service icmp
+   no allow-service sshd
+   no allow-service netconf
+   no allow-service ntp
+   allow-service ospf
+   no allow-service stun
+  !
+  no shutdown
+ !
+ interface ge0/2
+  description ForVlan
+  ip address 10.0.30.1/24
+  tunnel-interface
+   encapsulation ipsec
+   no allow-service bgp
+   allow-service dhcp
+   allow-service dns
+   allow-service icmp
+   no allow-service sshd
+   no allow-service netconf
+   no allow-service ntp
+   allow-service ospf
+   no allow-service stun
+  !
+  no shutdown
+ !
+!
+vpn 512
+ name "Management VPN"
+ interface eth0
+  description eth0
+  ip dhcp-client
+  no shutdown
+ !
+!
