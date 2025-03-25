@@ -1,0 +1,64 @@
+INET & MPLS Configurations
+
+@INET
+conf t
+ hostname INET
+ int gi0/0
+  ip add 6.12.12.65 255.255.255.224
+  no shut
+ int gi0/1
+  ip add 20.158.12.82 255.255.255.252
+  no shut
+ int gi0/2
+  ip add 20.158.12.86 255.255.255.252
+  no shut
+ int gi0/3
+  ip add 20.158.12.90 255.255.255.252
+  no shut
+ int gi0/4
+  ip add 20.158.12.94 255.255.255.252
+  no shut
+ int gi0/5
+  ip add 20.158.12.98 255.255.255.252
+  no shut
+ int gi0/6
+  ip add 20.158.12.102 255.255.255.252
+  no shut
+ int gi0/7
+  ip add 20.158.12.106 255.255.255.252
+  no shut
+ int gi0/10
+  ip add 208.8.8.201 255.255.255.0
+  no shut
+ no router bgp 37100
+ router bgp 37100
+  bgp log-neighbor-changes
+  neighbor 20.158.12.81 remote-as 65200
+  neighbor 20.158.12.85 remote-as 10100
+  neighbor 20.158.12.89 remote-as 20100
+  neighbor 20.158.12.93 remote-as 30100
+  neighbor 20.158.12.97 remote-as 10012
+  neighbor 20.158.12.101 remote-as 45100
+  neighbor 20.158.12.105 remote-as 45100
+  neighbor 6.12.12.66 remote-as 84204
+  address-family ipv4
+   neighbor 20.158.12.81 activate
+   neighbor 20.158.12.85 activate
+   neighbor 20.158.12.89 activate
+   neighbor 20.158.12.93 activate
+   neighbor 20.158.12.97 activate
+   neighbor 20.158.12.101 activate
+   neighbor 20.158.12.105 activate
+   neighbor 6.12.12.66 activate
+   network 208.8.8.0 mask 255.255.255.0
+   network 20.158.12.80 mask 255.255.255.252
+   network 20.158.12.84 mask 255.255.255.252
+   network 20.158.12.88 mask 255.255.255.252
+   network 20.158.12.92 mask 255.255.255.252
+   network 20.158.12.96 mask 255.255.255.252
+   network 20.158.12.100 mask 255.255.255.252
+   network 20.158.12.104 mask 255.255.255.252
+   network 0.0.0.0
+ ip route 0.0.0.0 0.0.0.0 208.8.8.2
+ end
+wr
