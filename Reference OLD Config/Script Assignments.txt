@@ -1,3 +1,26 @@
+*NEW*
+conf t
+hostname google
+int lo0
+ip add 8.8.8.8 255.255.255.255
+exit
+int vlan 1
+no shut
+ip add 10.255.10.254 255.255.255.0
+no router bgp 65001
+router bgp 65001
+no synchro
+bgp log-neighbor-changes
+network 8.8.8.8 mask 255.255.255.255
+network 10.0.0.0 mask 255.255.255.0
+neighbor 10.255.10.121 remote-as 65001
+neighbor 10.255.10.122 remote-as 65001
+neighbor 10.255.10.123 remote-as 65001
+no auto-summary
+end
+wr
+
+*OLDA*
 @Cloud
 conf t
 hostname google
