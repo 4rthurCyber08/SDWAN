@@ -1,5 +1,62 @@
 Cloud Network: 10.255.10.0/24
 
+
+@Cloud
+conf t
+ hostname Cloud
+ int lo0
+  ip add 10.100.10.10 255.255.255.255
+ vlan 10
+  name SDWAN-Controllers
+ int vlan 10
+  ip add 10.255.10.254 255.255.255.0
+  no shut
+ int range g0/0-3,g1/0-3
+  sw mo ac
+  sw ac vlan 10
+ no router bgp 65001
+ router bgp 65001
+ no synchro
+ bgp log-neighbor-changes
+ network 10.100.10.10 mask 255.255.255.255
+ network 10.255.10.0 mask 255.255.255.0
+ neighbor 10.255.10.121 remote-as 65001
+ neighbor 10.255.10.122 remote-as 65001
+ neighbor 10.255.10.123 remote-as 65001
+ no auto-summary
+ end
+
+
+@CSW-LUZON
+conf t
+router ospf 1
+network 172.16.10.0 0.0.0.255 area 0
+network 1.1.1.1 0.0.0.0 area 0
+end
+
+@CSW-VISAYAS
+conf t
+router ospf 1
+network 172.16.20.0 0.0.0.255 area 0
+network 1.1.1.1 0.0.0.0 area 0
+end
+
+@CSW-MINDANAO
+conf t
+router ospf 1
+network 172.16.30.0 0.0.0.255 area 0
+network 1.1.1.1 0.0.0.0 area 0
+end
+
+
+
+**************
+Preconfigs
+**************
+
+(Case Sensitive) ORGANIZATION = RIVANCORP
+
+
 @vManage
 conf t
  system
@@ -15,6 +72,11 @@ conf t
    no shut
    tunnel-interface
     allow-service all
+  ip route 0.0.0.0/0 10.255.10.254
+ vpn 512
+  int eth1
+   ip add 10.255.10.10/24
+   no shut
   ip route 0.0.0.0/0 10.255.10.254
   commit
 
@@ -308,7 +370,7 @@ conf t
  ip routing
  int lo0
   ip add 1.1.1.1 255.255.255.255
- int g0/0
+ int e0/0
   no sw
   ip add 172.16.10.2 255.255.255.0
   no shut
@@ -322,7 +384,7 @@ conf t
  ip routing
  int lo0
   ip add 2.2.2.2 255.255.255.255
- int g0/0
+ int e0/0
   no sw
   ip add 172.16.20.2 255.255.255.0
   no shut
@@ -336,7 +398,7 @@ conf t
  hostname CSW-MINDANAO
  int lo0
   ip add 3.3.3.3 255.255.255.255
- int g0/0
+ int e0/0
   no sw
   ip add 172.16.30.2 255.255.255.0
   no shut
