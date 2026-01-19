@@ -1,0 +1,333 @@
+SDWAN Guide
+
+| Devices        | Ports |
+| ---            | ---   |
+| CLOUD          | 32902 |
+| PKI SERVER     | 32913 |
+|                |       |
+| vManage        | 32897 |
+| vSmart         | 32898 |
+| vBond          | 32899 |
+|                |       |
+| vEdge-LUZON    | 32900 |
+| vEdge-VISAYAS  | 32903 |
+| vEdge-MINDANAO | 32904 |
+|                |       |
+| CSW-LUZON      | 32905 |
+| CSW-VISAYAS    | 32906 |
+| CSW-MINDANAO   | 32907 |
+
+
+SDWAN Appliances Login
+  User: admin
+  Pass: pass
+
+
+1. Set host route for vManage GUI
+
+!@cmd 
+route add 10.69.255.13 mask 255.255.255.255 10.69.255.5
+
+
+2. Boot Devices
+- vManage
+- CLOUD
+
+!@vManage
+conf t
+ system
+  host-name Rivan-vManage
+  site-id 10
+  system-ip 10.1.10.2
+  organization-name RIVANCORP
+  vbond 172.16.10.3
+  admin-tech-on-failure
+ vpn 0
+  int eth0
+   ip add 172.16.10.2/29
+   no shut
+   tunnel-interface
+    allow-service all
+  ip route 0.0.0.0/0 172.16.10.6
+ vpn 512
+  int eth1
+   ip add 10.69.255.13/30
+   no shut
+  ip route 0.0.0.0/0 10.69.255.14
+  commit
+  end
+  
+
+3. Access vManage GUI
+
+!@vManage
+request nms all status
+show system status
+
+https://10.69.255.13:8443
+  User: admin
+  Pass: C1sc0123
+
+
+4. Boot Devices
+- vBond
+- vSmart
+
+!@vBond
+conf t
+ system
+  host-name Rivan-vBond
+  site-id 10
+  system-ip 10.1.10.3
+  organization-name RIVANCORP
+  vbond 172.16.10.3 local vbond
+  admin-tech-on-failure
+ vpn 0
+  int ge0/0
+   ip add 172.16.10.3/29
+   no shut
+   tunnel-interface
+    encapsulation ipsec
+    allow-service all
+  ip route 0.0.0.0/0 172.16.10.6
+  commit
+  end
+
+
+!@vSmart
+conf t
+ system
+  host-name Rivan-vSmart
+  site-id 10
+  system-ip 10.1.10.1
+  organization-name RIVANCORP
+  vbond 172.16.10.3
+  admin-tech-on-failure
+  vpn 0
+   int eth0
+    ip add 172.16.10.1/29
+	no shut
+	tunnel-interface
+	 allow-service all
+   ip route 0.0.0.0/0 172.16.10.6
+   commit
+   end
+
+
+NOTE* Wait until the SDWAN Controllers are stable before turning on the vEdges
+
+
+5. Boot Devices
+- vEdge-LUZON
+- vEdge-VISAYAS
+
+
+6. Configure BGP on CLOUD to establish connection with controllers
+
+!@Cloud (BGP Config)
+conf t
+ int lo8
+  ip add 8.8.8.8 255.255.255.255
+ router bgp 1
+  bgp log-neighbor-changes
+  neighbor 192.168.20.1 remote-as 100
+  neighbor 192.168.20.5 remote-as 100
+  neighbor 192.168.20.9 remote-as 100
+  address-family ipv4
+   neighbor 192.168.20.1 activate
+   neighbor 192.168.20.5 activate
+   neighbor 192.168.20.9 activate
+   neighbor 192.168.20.1 as-override
+   neighbor 192.168.20.5 as-override
+   neighbor 192.168.20.9 as-override
+   network 8.8.8.8 mask 255.255.255.255
+   network 192.168.20.0 mask 255.255.255.0
+   network 172.16.10.0 mask 255.255.255.248
+   network 10.69.255.0 mask 255.255.255.248
+   end
+
+
+!@vEdge-LUZON
+show bgp routes
+show bgp neighbors
+
+
+GUI CONFIG
+
+7. Send vEDGE list to controllers
+
+
+8. Configure Templates for SYSTEM
+
+Configuration > Templates > Feature Templates > vEdge Cloud > System
+
+Name: VE-SYSTEM
+Desc: VE-SYSTEM
+
+Console Baud Rate(bps): 9600
+
+- Extra
+GPS - Longitude & Latitude
+
+
+9. Configure Templates for BANNER
+
+Configuration > Templates > Feature Templates > vEdge Cloud > Banner
+
+Name: VE-BANNER
+Desc: VE-BANNER
+
+Login Banner: Welcome to RIVANCORP
+MOTD Banner: Property owned by RIVANCORP
+
+
+10. Configure Templates for Interface IP address (VPN512)
+
+Configuration > Templates > Feature Templates > vEdge Cloud > VPN Interface Ethernet
+
+Name: VE-VPNINT-VPN512-ETH0
+Desc: VE-VPNINT-VPN512-ETH0
+
+Shutdown: No
+Interface Name: eth0
+Description: MANAGEMENT INTERFACE
+
+IPv4Add: Default
+
+
+11. Configure Templates for VPN0
+
+Configuration > Templates > Feature Templates > vEdge Cloud > VPN
+
+Name: VE-VPN0
+Desc: VE-VPN0
+
+VPN: 0
+Name: TRANSPORT VPN
+
+Ipv4 Route:
+  Prefix: 0.0.0.0/0
+  Gateway: NextHop
+  Add Next Hop:
+    Address: Device Specific
+
+
+12. Configure Templates for VPN512
+
+Configuration > Templates > Feature Templates > vEdge Cloud > VPN
+
+Name: VE-VPN512
+Desc: VE-VPN512
+
+VPN: 512
+Name: MANAGEMENT VPN
+
+
+13. Configure Templates for Interface IP address (VPN0-G0/1)
+
+Configuration > Templates > Feature Templates > vEdge Cloud > VPN Interface Ethernet
+
+Name: VE-VPNINT-VPN0-GIG01
+Desc: VE-VPNINT-VPN0-GIG01
+
+Shutdown: No
+Interface Name: ge0/1
+Description: TRANSPORT INTERFACE
+
+IPv4Add: Device Specific
+
+Tunnel Interface: On
+Color: BIZ-INTERNET
+
+Allow Service: All, NETCONF, SSH, BGP
+NAT: On
+
+
+14. Configure Templates for Interface IP address (VPN0-G0/0)
+
+Configuration > Templates > Feature Templates > vEdge Cloud > VPN Interface Ethernet
+
+Name: VE-VPNINT-VPN0-GIG00
+Desc: VE-VPNINT-VPN0-GIG00
+
+Shutdown: No
+Interface Name: ge0/0
+Description: LAN INTERFACE
+
+IPv4Add: Device Specific
+
+Tunnel Interface: On
+Color: Private1
+Restrict: On
+Allow Service: All, NETCONF, SSH, OSPF
+
+
+15. Configure Templates for BGP
+
+Configuration > Templates > Feature Templates > vEdge Cloud > BGP
+
+Name: VE-BGP-VPN0
+Desc: VE-BGP-VPN0
+
+Shutdown: No
+AS Number: Global 100
+
+Neigbor:
+  Address: 192.168.20.6
+  Remote AS: 1
+  Address Family: On
+    Address Family: IPv4 Unicast
+	Shutdown: No
+
+
+
+DEVICE TEMPLATE
+
+16. Configure Device Templates
+
+Device Model: vEdge Cloud
+Device Role: SDWAN Edge
+Template Name: VE-TEMP
+Desc: VE-TEMP
+
+Basic Info:
+  System: VE-SYSTEM
+ 
+Transport & Management VPN:
+  VPN0: VE-VPN0
+  Add: 
+    BGP: VE-BGP-VPN0
+	VPN Interface: VE-VPNINT-VPN0-GIG00
+	VPN Interface: VE-VPNINT-VPN0-GIG01
+  
+  VPN512: VE-VPN512
+  VPN Interface: VE-VPNINT-VPN512-ETH1
+  
+  
+DEPLOYMENT
+
+17. Attatch Device Tempates to vEdge-LUZON & VISAYAS
+
+
+18. Assign Correct Values Per device
+
+PerDevice Edit:
+  - VISAYAS
+  - IPv4 (g0/1): 192.168.20.1/24
+  - IPv4 (g0/0): 172.16.1.1/30
+  - Hostname: vEDGE-VISAYAS
+  - Latitude/Longitude: 3 deci
+  - System IP: 10.1.25.1
+  - Site ID: 25
+
+
+19. Add Template for a user account
+
+Configuration > Templates > Feature Templates > vEdge Cloud > AAA
+
+Name: VE-ACC
+Desc: VE-ACC
+
+Auth Order: Local Only
+Add User: admin C1sc0123
+          rivan C1sc0123
