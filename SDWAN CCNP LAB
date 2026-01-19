@@ -677,3 +677,213 @@ network 10.1.3.0 0.0.0.3 area 0
 network 1.1.1.1 0.0.0.0 area 0
 end
 wr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**********
+GUI CONFIG
+
+
+SDWAN
+
+NOTE: Send vEDGE List to Controllers
+************
+FEATURE Templates
+
+1. Configure Templates for SYSTEM
+
+Configuration > Templates > Feature Templates > vEdge Cloud > System
+
+Name: VE-SYSTEM
+Desc: VE-SYSTEM
+
+Console Baud Rate(bps): 9600
+
+- Extra
+GPS - Longitude & Latitude
+
+
+2. Configure Templates for BANNER
+
+Configuration > Templates > Feature Templates > vEdge Cloud > Banner
+
+Name: VE-BANNER
+Desc: VE-BANNER
+
+Login Banner: Welcome to RIVANCORP
+MOTD Banner: Property owned by RIVANCORP
+
+
+3. Configure Templates for Interface IP address (VPN512)
+
+Configuration > Templates > Feature Templates > vEdge Cloud > VPN Interface Ethernet
+
+Name: VE-VPNINT-VPN512-ETH0
+Desc: VE-VPNINT-VPN512-ETH0
+
+Shutdown: No
+Interface Name: eth0
+Description: MANAGEMENT INTERFACE
+
+IPv4Add: Default
+
+
+4. Configure Templates for VPN0
+
+Configuration > Templates > Feature Templates > vEdge Cloud > VPN
+
+Name: VE-VPN0
+Desc: VE-VPN0
+
+VPN: 0
+Name: TRANSPORT VPN
+
+Ipv4 Route:
+  Prefix: 0.0.0.0/0
+  Gateway: NextHop
+  Add Next Hop:
+    Address: Device Specific
+
+
+5. Configure Templates for VPN512
+
+Configuration > Templates > Feature Templates > vEdge Cloud > VPN
+
+Name: VE-VPN512
+Desc: VE-VPN512
+
+VPN: 512
+Name: MANAGEMENT VPN
+
+
+6. Configure Templates for Interface IP address (VPN0-G0/1)
+
+Configuration > Templates > Feature Templates > vEdge Cloud > VPN Interface Ethernet
+
+Name: VE-VPNINT-VPN0-GIG01
+Desc: VE-VPNINT-VPN0-GIG01
+
+Shutdown: No
+Interface Name: ge0/1
+Description: TRANSPORT INTERFACE
+
+IPv4Add: Device Specific
+
+Tunnel Interface: On
+Color: BIZ-INTERNET
+
+Allow Service: All, NETCONF, SSH, BGP
+NAT: On
+
+
+7. Configure Templates for Interface IP address (VPN0-G0/0)
+
+Configuration > Templates > Feature Templates > vEdge Cloud > VPN Interface Ethernet
+
+Name: VE-VPNINT-VPN0-GIG00
+Desc: VE-VPNINT-VPN0-GIG00
+
+Shutdown: No
+Interface Name: ge0/0
+Description: LAN INTERFACE
+
+IPv4Add: Device Specific
+
+Tunnel Interface: On
+Color: Private1
+Restrict: On
+Allow Service: All, NETCONF, SSH, OSPF
+
+
+8. Configure Templates for BGP
+
+Configuration > Templates > Feature Templates > vEdge Cloud > BGP
+
+Name: VE-BGP-VPN0
+Desc: VE-BGP-VPN0
+
+Shutdown: No
+AS Number: Global 100
+
+Neigbor:
+  Address: 192.168.20.6
+  Remote AS: 1
+  Address Family: On
+    Address Family: IPv4 Unicast
+	Shutdown: No
+
+
+************
+DEVICE TEMPLATE
+
+1. Configure Device Templates
+
+Device Model: vEdge Cloud
+Device Role: SDWAN Edge
+Template Name: VE-TEMP
+Desc: VE-TEMP
+
+Basic Info:
+  System: VE-SYSTEM
+ 
+Transport & Management VPN:
+  VPN0: VE-VPN0
+  Add: 
+    BGP: VE-BGP-VPN0
+	VPN Interface: VE-VPNINT-VPN0-GIG00
+	VPN Interface: VE-VPNINT-VPN0-GIG01
+  
+  VPN512: VE-VPN512
+  VPN Interface: VE-VPNINT-VPN512-ETH1
+  
+  
+************
+DEPLOYMENT
+
+1. Attatch Device Tempates to vEdge-LUZON, VISAYAS, MINDANAO
+
+2. Assign Correct Values Per device
+
+PerDevice Edit:
+  - VISAYAS
+  - IPv4 (g0/1): 192.168.20.1/24
+  - IPv4 (g0/0): 172.16.1.1/30
+  - Hostname: vEDGE-VISAYAS
+  - Latitude/Longitude: 3 deci
+  - System IP: 10.1.25.1
+  - Site ID: 25
+
+
+
+
+
+
+
+
+
+
+***************************
+Extra
+
+Template AAA
+
+Name: VE-ACC
+Desc: VE-ACC
+
+Auth Order: Local Only
+Add User: admin C1sc0123
+          rivan C1sc0123
