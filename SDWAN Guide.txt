@@ -1,17 +1,17 @@
-Cisco SDWAN Components
+CISCO SDWAN COMPONENTS
 
-vManage was introduced as the management plane, where all Day 0, Day 1, and Day N functions will be performed, including WAN Edge
+1. vManage was introduced as the management plane, where all Day 0, Day 1, and Day N functions will be performed, including WAN Edge
 configuration, routing and control policies, troubleshooting, and monitoring.
 
-vSmart is the brain of the Cisco SD WAN fabric and is responsible for calculating and deploying all control and data policies as well as handling
+2. vSmart is the brain of the Cisco SD WAN fabric and is responsible for calculating and deploying all control and data policies as well as handling
 the distribution of encryption keys for data plane connectivity.
 
-vBond makes up the orchestration plane and is responsible for authenticating components on the fabric in addition to distributing control and
+3. vBond makes up the orchestration plane and is responsible for authenticating components on the fabric in addition to distributing control and
 management plane information to the WAN Edges. The vBond is the component that aids in discovery of the fabric for all other components (such
 as when devices are behind NAT). The vBond then distributes the connectivity information for the vSmart and vManage to the WAN Edge.
 
 
-vEdge handles the data plane is where user traffic will be routed and forwarded across the WAN. The data plane is similar to routers that would
+4. vEdge handles the data plane is where user traffic will be routed and forwarded across the WAN. The data plane is similar to routers that would
 be deployed in a traditional WAN, though in Cisco SD WAN, these are referred to as WAN Edges.
 
 Each component authenticates each other and if successful, a Datagram Transport Layer Security (DTLS) tunnel is established. Separating the
@@ -19,17 +19,24 @@ control plane from the data and management plane, the protocol that vSmart uses 
 Management Protocol (OMP)
 
 
-************
-Resource requirements
-32GB RAM, 12 Core 
+**************************************************
+RESOURCE REQUIREMENTS
 
-Network Adapters
-VMNet15 = 10.255.10.0/24
-VMNet16 = 10.69.255.0/29
+32GB RAM 
+12 Core 
+
+Network Adapter 1 : NAT (208.8.8.0/24)
+Network Adapter 2 : VMNet15 (10.255.10.0/24)
+Network Adapter 3 : VMNet16 (10.69.255.0/29)
 
 
-SDWAN Guide
+**************************************************
+SDWAN PROCEDURE
 
+SDWAN Appliances Login
+  User: admin
+  Pass: C1sc0123
+  
 | Devices        | Ports |
 | ---            | ---   |
 | CLOUD          | 32902 |
@@ -48,21 +55,18 @@ SDWAN Guide
 | CSW-MINDANAO   | 32907 |
 
 
-SDWAN Appliances Login
-  User: admin
-  Pass: pass
-
-
-1. Set host route for vManage GUI
+1. Set a host route for vManage GUI
 
 !@cmd 
 route add 10.69.255.13 mask 255.255.255.255 10.69.255.6
 
 
 2. Boot Devices
-- vManage
-- CLOUD
+- vManage	32897
+- CLOUD		32902
 
+Day0 Bootstrap Configuration
+~~~
 !@vManage
 conf t
  system
@@ -86,23 +90,28 @@ conf t
   ip route 0.0.0.0/0 10.69.255.14
   commit
   end
-  
+~~~
+
 
 3. Access vManage GUI
-
-!@vManage
-request nms all status
-show system status
+*NOTE: It usually takes 10 MINUTES before vManage GUI is accessible
 
 https://10.69.255.13:8443
   User: admin
   Pass: C1sc0123
+  
+~~~
+!@vManage
+request nms all status
+show system status
+~~~
 
 
 4. Boot Devices
-- vBond
-- vSmart
+- vBond 	32899
+- vSmart 	32898
 
+~~~
 !@vBond
 conf t
  system
@@ -122,8 +131,9 @@ conf t
   ip route 0.0.0.0/0 172.16.10.6
   commit
   end
+~~~
 
-
+~~~
 !@vSmart
 conf t
  system
@@ -142,18 +152,22 @@ conf t
    ip route 0.0.0.0/0 172.16.10.6
    commit
    end
+~~~
 
 
 NOTE* Wait until the SDWAN Controllers are stable before turning on the vEdges
 
 
+
+
 5. Boot Devices
-- vEdge-LUZON
-- vEdge-VISAYAS
+- vEdge-LUZON 	32900
+- vEdge-VISAYAS 32903
 
 
 6. Configure BGP on CLOUD to establish connection with controllers
 
+~~~
 !@Cloud (BGP Config)
 conf t
  int lo8
@@ -175,16 +189,19 @@ conf t
    network 172.16.10.0 mask 255.255.255.248
    network 10.69.255.0 mask 255.255.255.248
    end
+~~~
 
 
+~~~
 !@vEdge-LUZON
 show bgp routes
 show bgp neighbors
+~~~
 
 
-GUI CONFIG
+7. Return to the vManage GUI then send the vEDGE list to all controllers
 
-7. Send vEDGE list to controllers
+Configuration > Certificates > Send to Controllers
 
 
 8. Configure Templates for SYSTEM
