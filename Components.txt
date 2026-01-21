@@ -81,3 +81,22 @@ Net Devices       - routers, switches, firewalls, etc.,
 
 
 Cisco SDWAN Components
+
+1. vManage was introduced as the management plane, where all Day 0, Day 1, and Day N functions will be performed, including WAN Edge
+configuration, routing and control policies, troubleshooting, and monitoring.
+
+2. vSmart is the brain of the Cisco SD WAN fabric and is responsible for calculating and deploying all control and data policies as well as handling
+the distribution of encryption keys for data plane connectivity.
+
+3. vBond makes up the orchestration plane and is responsible for authenticating components on the fabric in addition to distributing control and
+management plane information to the WAN Edges. The vBond is the component that aids in discovery of the fabric for all other components (such
+as when devices are behind NAT). The vBond then distributes the connectivity information for the vSmart and vManage to the WAN Edge.
+
+
+4. vEdge handles the data plane is where user traffic will be routed and forwarded across the WAN. The data plane is similar to routers that would
+be deployed in a traditional WAN, though in Cisco SD WAN, these are referred to as WAN Edges.
+
+Each component authenticates each other and if successful, a Datagram Transport Layer Security (DTLS) tunnel is established. Separating the
+control plane from the data and management plane, the protocol that vSmart uses to communicate all the WAN Edge routing is called Overlay
+Management Protocol (OMP)
+
