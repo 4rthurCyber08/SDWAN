@@ -378,3 +378,146 @@ Desc: VE-ACC
 Auth Order: Local Only
 Add User: admin C1sc0123
           rivan C1sc0123
+
+
+
+
+
+
+*************
+OSPF VPN OMP REDISTRIBUTION
+
+!@CSW-LUZON 32905
+conf t
+ hostname CSW-LUZON
+ enable secret pass
+ service password-encryption
+ no logging console
+ no ip domain lookup
+ username admin priv 15 secret pass
+ line vty 0 14
+  transport input all
+  password pass
+  login local
+  exec-timeout 0 0
+ int lo0
+  ip add 1.1.1.1 255.255.255.255
+  exit
+ int g0/0
+  no sw
+  ip add 172.16.1.2 255.255.255.252
+  no shut
+ int g0/1
+  no sw
+  ip add 10.1.1.2 255.255.255.252
+  no shut
+ router ospf 1
+  router-id 1.1.1.1
+  network 172.16.1.0 0.0.0.3 area 0
+  network 1.1.1.1 0.0.0.0 area 0
+  network 10.1.1.0 0.0.0.3 area 0
+  passive-interface lo0
+  end
+
+
+!@CSW-LUZON 32906
+conf t
+ hostname CSW-VISAYAS
+ enable secret pass
+ service password-encryption
+ no logging console
+ no ip domain lookup
+ username admin priv 15 secret pass
+ line vty 0 14
+  transport input all
+  password pass
+  login local
+  exec-timeout 0 0
+ int lo0
+  ip add 2.2.2.2 255.255.255.255
+  exit
+ int g0/0
+  no sw
+  ip add 172.16.5.2 255.255.255.252
+  no shut
+ int g0/1
+  no sw
+  ip add 10.1.2.2 255.255.255.252
+  no shut
+ router ospf 1
+  router-id 2.2.2.2
+  network 172.16.5.0 0.0.0.3 area 0
+  network 2.2.2.2 0.0.0.0 area 0
+  network 10.1.2.0 0.0.0.3 area 0
+  passive-interface lo0
+  end
+  
+  
+  
+  
+ESTABLISH CONNECTION BETWEEN LUZON & VISAYAS
+
+1. Configure Templates for VPN1
+
+Configuration > Templates > Feature Templates > vEdge Cloud > VPN
+
+Name: VE-VPN1
+Desc: VE-VPN1
+
+VPN: 1
+NAME: DATA VPN
+
+IPv4 Route: 
+  Prefix: 0.0.0.0/0
+  Gateway: VPN
+  Enable VPN: On
+
+
+2. Configure Templates VPN1 Interface [MODIFY]  - OPTIONAL
+
+Configuration > Templates > Feature Templates > vEdge Cloud > MODIFY VE-VPNINT-VPN0GIG00
+
+Name: Retain
+Desc: Retain
+
+Shutdown: No
+Name: ge0/0
+Description: LAN INTERFACE
+
+Ipv4 Address: Device Specific
+
+
+3. Configure Templates for OSPF 
+
+Configuration > Templates > Feature Templates > vEdge Cloud > OSPF
+
+Name: VE-OSPF-VPN1
+Desc: VE-OSPF-VPN1
+
+Redistribute:
+  Protocol: omp
+
+Area:
+  Area Num: 0
+  Interface:
+    Interface Name: ge0/0
+	
+	ADD x2
+
+Advance:
+  Originate: On
+  Always: On
+
+
+
+4. Update VE-TEMP (Device Template)
+
+Service VPN:
+  Add VPN: VE-VPN1
+    OSPF: VE-OSPF-VPN1
+	VPN Interface: VE-VPNINT-VPN0-GIG00
+
+Remove GIG00 From VPN 0
+
+Assign G0/0 With the IP based on the topology
+
