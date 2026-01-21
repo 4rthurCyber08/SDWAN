@@ -1,0 +1,83 @@
+
+1. Software Defined Networking
+https://account.meraki.com/login/
+
+Control Plane - how data should be managed, routed, or processed
+~~~
+!@Cisco
+show ip route
+show ip nat translations
+show ip ospf database
+show ip eigrp topology
+show ip bgp
+show spanning-tree vlan 1
+~~~
+
+
+Data Plane - Movement of data. Forwarding
+
+Wireshark
+~~~
+!@Cisco
+ping 8.8.8.8
+traceroute 8.8.8.8
+copy run ftp:
+~~~
+
+
+Management Plane - the instance where the user interacts with the device.
+User Interface
+  CLI
+  GUI
+
+~~~
+!@Cisco
+conf t
+ ip http server
+ ip http secure-server
+ ip http authentication local
+ username admin priv 15 secret pass
+ end
+~~~
+
+
+Decrypt TLS Traffic
+Environment Variables > New
+ Name: SSLKEYLOGFILE
+ Desc: File path
+
+or
+
+Wireshark
+
+Tools > TLS Keylog Launcher
+Log file: Desktop/SSLKEY.log
+Launcher: Firefox
+
+
+https://<router-ip>/restconf/data/
+
+curl -k -u admin:pass -H "Accept: application/yang-data+json" https://192.168.102.11/restconf/data/ietf-yang-library:modules-state -o modules.json
+curl -k -u admin:pass -H "Accept: application/yang-data+json" https://192.168.102.11/restconf/data/ietf-interfaces:interfaces -o interfaces.json
+
+Schema
+Interfaces
+Interface-state
+ 
+
+SDN Elements
+*Paved the way to scripting "Programming the Network"*
+
+User              - you
+     V
+Northbound Int   - relay information between the controller and the applications and policy engines 
+     V  - Meraki/vManage Dashboard, RESTCONF
+SDN Controller    - the core element of an SDN architecture, that enables centralized management and control, automation, and policy enforcement across physical and virtual network environments
+     V
+Southbound Int   - relay information between the controller and the individual network devices
+     V  - Openflow, NETCONF, OVSDB (Open vSwitch Database), SNMP, Meraki (proprietary device‑to‑cloud protocol)
+Net Devices       - routers, switches, firewalls, etc.,
+
+
+
+Cisco SDWAN Components
