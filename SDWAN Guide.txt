@@ -453,7 +453,7 @@ conf t
   end
 
 
-!@CSW-LUZON 32906
+!@CSW-VISAYAS 32906
 conf t
  hostname CSW-VISAYAS
  enable secret pass
@@ -556,8 +556,32 @@ Assign G0/0 With the IP based on the topology
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ****************
-ONBOARD Mindanao
+vEDGE ONBOARDING
 
 1. Configure CSR-MINDANAO
 
