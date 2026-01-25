@@ -37,6 +37,7 @@ conf t
  ip http secure-server
  ip http authentication local
  username admin priv 15 secret pass
+ restconf
  end
 ~~~
 
